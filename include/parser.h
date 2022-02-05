@@ -7,14 +7,20 @@ typedef enum {
     SUB_OP,
     MUL_OP,
     DIV_OP,
+    NEGATE_OP,
+    NOT_OP,
     LESS_OP,
+    LESS_EQUAL_OP,
     GREATER_OP,
+    GREATER_EQUAL_OP,
+    NOT_EQUAL_OP,
     EQUAL_OP,
     NO_OP
 } Op_Type;
 
 typedef enum {
     NODE_BINARY_OP,
+    NODE_UNARY_OP,
     NODE_STATEMENT_LIST,
     NODE_LOAD,
     NODE_STORE,
@@ -36,6 +42,6 @@ struct AST_Node {
     int count;
 } ;
 
-void parser_init(char*);
+void init_parser(char*);
 AST_Node* statement_list(void);
 void free_ast(AST_Node*);
