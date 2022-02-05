@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "io_and_mem.h"
 #include "lexer.h"
 #include "parser.h"
@@ -21,6 +23,10 @@ void consume(Token_Type type, char* error_descr) {
     else {
         fprintf(stderr, "%s\n", error_descr);
     }
+}
+
+bool match_token(Token_Type type) {
+    return parser.curr_token.type == type;
 }
 
 AST_Node* make_ast_node(Node_Type type, Value value, char* chars, Op_Type op_type) {
@@ -223,21 +229,54 @@ AST_Node* identi(void) {
     return make_ast_node(NODE_LOAD, 0, id, NO_OP);
 }
 
-AST_Node* statement_list(void) {
+AST_Node* assign_statement(void) {
+    char* id = parser.curr_token.chars;
+    AST_Node* node = make_ast_node(NODE_STORE, 0, id, NO_OP);
+    consume(TOKEN_IDENTIFIER, "");
+    consume(TOKEN_EQUAL, "missing `=` after var-id");
+
+    add_child_node(node, expression(PREC_NONE));
+    consume(TOKEN_SEMICOLON, "missing `;` after expression");
+    return node;
+}
+
+AST_Node* block(void) {
     AST_Node* list = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
-    
-    while(parser.curr_token.type != TOKEN_EOF) {
-        char* id = parser.curr_token.chars;
-        AST_Node* parent = make_ast_node(NODE_STORE, 0, id, NO_OP);
+    while(!match_token(TOKEN_RIGHT_BRACE)) {
 
-        consume(TOKEN_IDENTIFIER, "no var-id given to store the result of expression");
-        consume(TOKEN_EQUAL, "missing `=` after var-id");
-
-        add_child_node(parent, expression(PREC_ASSIGN));
-
-        consume(TOKEN_SEMICOLON, "missing `;` after expression");
-
-        add_child_node(list, parent);
+        if(match_token(TOKEN_IDENTIFIER)) {
+            AST_Node* node = assign_statement();
+            add_child_node(list, node);
+        }
     }
     return list;
+}
+
+AST_Node* if_statement(void) {
+    AST_Node* parent = make_ast_node(NODE_IF, 0, NULL, NO_OP);
+
+    consume(TOKEN_LEFT_PAREN, "Missing `(` after `if` token");
+    add_child_node(parent, expression(PREC_NONE));
+    consume(TOKEN_RIGHT_PAREN, "Missing `)` after condition expression");
+
+    consume(TOKEN_LEFT_BRACE, "`{` is mandatory after if statement");
+    add_child_node(parent, block());
+    consume(TOKEN_RIGHT_BRACE, "`}` is missing after if block");
+
+    return parent;
+}
+
+AST_Node* statement(void) {
+    AST_Node* parent = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
+
+    while(!match_token(TOKEN_EOF)) {
+        if(match_token(TOKEN_IF)) {
+            consume(TOKEN_IF, "");
+            add_child_node(parent, if_statement());
+        }
+        else if(match_token(TOKEN_IDENTIFIER)) {
+            add_child_node(parent, assign_statement());
+        }
+    }
+    return parent;
 }

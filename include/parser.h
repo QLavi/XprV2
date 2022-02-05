@@ -20,6 +20,7 @@ typedef enum {
 } Op_Type;
 
 typedef enum {
+    NODE_IF,
     NODE_BINARY_OP,
     NODE_UNARY_OP,
     NODE_STATEMENT_LIST,
@@ -42,5 +43,5 @@ struct AST_Node {
 } ;
 
 void init_parser(char*);
-AST_Node* statement_list(void);
+AST_Node* statement(void);
 void free_ast(AST_Node*);

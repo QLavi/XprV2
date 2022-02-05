@@ -3,6 +3,8 @@
 #include <stdint.h>
 
 enum {
+    POP_JUMP_IF_FALSE,
+    POP_JUMP_IF_TRUE,
     LOAD_NAME,
     STORE_NAME,
     LOAD_CONST,
