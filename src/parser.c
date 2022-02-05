@@ -178,7 +178,7 @@ AST_Node* binary(AST_Node* node) {
             add_child_node(parent, expression(PREC_COMPARISON));
             break;
         case TOKEN_EQUAL_EQUAL:
-            parent->op_type = GREATER_EQUAL_OP;
+            parent->op_type = EQUAL_OP;
             add_child_node(parent, node);
             add_child_node(parent, expression(PREC_EQUALITY));
             break;
@@ -186,6 +186,7 @@ AST_Node* binary(AST_Node* node) {
             parent->op_type = NOT_EQUAL_OP;
             add_child_node(parent, node);
             add_child_node(parent, expression(PREC_EQUALITY));
+            break;
         default: return NULL;
     }
     return parent;
@@ -195,11 +196,11 @@ AST_Node* unary(void) {
     AST_Node* parent = make_ast_node(NODE_UNARY_OP, 0, NULL, NO_OP);
     switch(parser.prev_token.type) {
         case TOKEN_BANG:
-            parent->op_type = NEGATE_OP;
+            parent->op_type = NOT_OP;
             add_child_node(parent, expression(PREC_UNARY));
             break;
         case TOKEN_MINUS:
-            parent->op_type = NOT_OP;
+            parent->op_type = NEGATE_OP;
             add_child_node(parent, expression(PREC_UNARY));
             break;
         default: return NULL;
