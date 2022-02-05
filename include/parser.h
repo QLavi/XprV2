@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stdint.h>
+#include "value.h"
 
 typedef enum {
+    NO_OP,
     ADD_OP,
     SUB_OP,
     MUL_OP,
@@ -15,7 +17,6 @@ typedef enum {
     GREATER_EQUAL_OP,
     NOT_EQUAL_OP,
     EQUAL_OP,
-    NO_OP
 } Op_Type;
 
 typedef enum {
@@ -26,8 +27,6 @@ typedef enum {
     NODE_STORE,
     NODE_VALUE
 } Node_Type;
-
-typedef double Value;
 
 typedef struct AST_Node AST_Node;
 struct AST_Node {

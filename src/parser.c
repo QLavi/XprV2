@@ -23,15 +23,21 @@ void consume(Token_Type type, char* error_descr) {
     }
 }
 
-AST_Node* make_ast_node(Node_Type type, Value value, char* id, Op_Type op_type) {
+AST_Node* make_ast_node(Node_Type type, Value value, char* chars, Op_Type op_type) {
     AST_Node* node = ALLOC(AST_Node, 1);
     node->type = type;
-    node->value = value;
-    if(type == NODE_LOAD || type == NODE_STORE) {
-        node->id = id;
+
+    if(type == NODE_VALUE) {
+        node->value = value;
     }
-    if(type == NODE_BINARY_OP || type == NODE_UNARY_OP) {
+    else if(type == NODE_LOAD || type == NODE_STORE) {
+        node->id = chars;
+    }
+    else if(type == NODE_BINARY_OP || type == NODE_UNARY_OP) {
         node->op_type = op_type;
+    }
+    else {
+        node->id = 0; // Zero out the union members
     }
     node->child_nodes = NULL;
     node->count = 0;
@@ -182,6 +188,7 @@ AST_Node* binary(AST_Node* node) {
             add_child_node(parent, expression(PREC_EQUALITY));
         default: return NULL;
     }
+    return parent;
 }
 
 AST_Node* unary(void) {
@@ -217,6 +224,19 @@ AST_Node* identi(void) {
 
 AST_Node* statement_list(void) {
     AST_Node* list = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
-    add_child_node(list, expression(PREC_ASSIGN));
+    
+    while(parser.curr_token.type != TOKEN_EOF) {
+        char* id = parser.curr_token.chars;
+        AST_Node* parent = make_ast_node(NODE_STORE, 0, id, NO_OP);
+
+        consume(TOKEN_IDENTIFIER, "no var-id given to store the result of expression");
+        consume(TOKEN_EQUAL, "missing `=` after var-id");
+
+        add_child_node(parent, expression(PREC_ASSIGN));
+
+        consume(TOKEN_SEMICOLON, "missing `;` after expression");
+
+        add_child_node(list, parent);
+    }
     return list;
 }
