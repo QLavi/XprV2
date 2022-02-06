@@ -36,6 +36,7 @@ struct AST_Node {
         Value value;
         char* id;
         Op_Type op_type;
+        int jump_id;
     };
     AST_Node** child_nodes;
     int capacity;

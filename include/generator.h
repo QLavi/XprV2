@@ -19,4 +19,5 @@ typedef struct {
     int count;
 } Stream;
 
-void print_opcodes(AST_Node* node);
+#include "parser.h"
+uint8_t* generate_opcodes(AST_Node* node, int* c);

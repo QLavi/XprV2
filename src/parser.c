@@ -42,6 +42,9 @@ AST_Node* make_ast_node(Node_Type type, Value value, char* chars, Op_Type op_typ
     else if(type == NODE_BINARY_OP || type == NODE_UNARY_OP) {
         node->op_type = op_type;
     }
+    else if(type == NODE_IF) {
+        node->jump_id = op_type;
+    }
     else {
         node->id = 0; // Zero out the union members
     }
@@ -240,6 +243,8 @@ AST_Node* assign_statement(void) {
     return node;
 }
 
+AST_Node* if_statement(void);
+
 AST_Node* block(void) {
     AST_Node* list = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
     while(!match_token(TOKEN_RIGHT_BRACE)) {
@@ -248,12 +253,20 @@ AST_Node* block(void) {
             AST_Node* node = assign_statement();
             add_child_node(list, node);
         }
+        else {
+            if(match_token(TOKEN_IF)) {
+                consume(TOKEN_IF, "");
+                AST_Node* node = if_statement();
+                add_child_node(list, node);
+            }
+        }       
     }
     return list;
 }
 
+int em_id = 0;
 AST_Node* if_statement(void) {
-    AST_Node* parent = make_ast_node(NODE_IF, 0, NULL, NO_OP);
+    AST_Node* parent = make_ast_node(NODE_IF, 0, NULL, em_id++);
 
     consume(TOKEN_LEFT_PAREN, "Missing `(` after `if` token");
     add_child_node(parent, expression(PREC_NONE));
