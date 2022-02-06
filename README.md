@@ -10,8 +10,8 @@ $ python3 run_tests.py
 ```
 
 ## Targets (for now)
-- Parse simple statements and generate Abstract Syntax Tres -Done
-- Generate bytecode and run that on the virtual machine -Done
-- Print Statements and Test Suite -Done almost
-- Implement condition and looping constructs
-- Implement Lists
+- [x] Parse simple statements and generate Abstract Syntax Tres
+- [x] Generate bytecode and run that on the virtual machine
+- [x] Print Statements and Test Suite
+- [ ] Implement condition and looping constructs
+- [ ] Implement Lists
