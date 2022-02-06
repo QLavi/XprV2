@@ -1,0 +1,7 @@
+# Expressions Are Cool!
+x = 10 + 40 - 50 * ( 50 - 20 ); # Expect: -1450
+print x;
+y = x + 20 - (20 / 5 + 4); # Expect: -1438.0
+print y;
+z = y * y + x + 56 - 20; # Expect: 2066430.0
+print z;
