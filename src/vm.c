@@ -142,23 +142,28 @@ void eval(uint8_t* stream, int count) {
                 PUSH(value);
                 break;
             case STORE_NAME:
-                {
-                    Value value = POP();
-                    if(!table_set(&vm.symbols, *vm.ip++ - 'a', value)) {
-                        fprintf(stderr, "Accessing undefined variable");
-                    }
-                } break;
-            case LOAD_CONST:
-                {
-                    Value value = vm.constants[*vm.ip++];
-                    PUSH(value);
+            {
+                Value value = POP();
+                if(!table_set(&vm.symbols, *vm.ip++ - 'a', value)) {
+                    fprintf(stderr, "Accessing undefined variable");
                 }
-                break;
+            } break;
+            case LOAD_CONST:
+            {
+                Value value = vm.constants[*vm.ip++];
+                PUSH(value);
+            } break;
+            case PRINT_VALUE:
+            {
+                Value value = POP();
+                printf("%0.1f\n", value);
+                vm.ip++;
+            } break;
             case POP_TOP:
                 POP();
                 break;
             case RETURN_VALUE:
-                printf("Eval Result: %g\n", POP());
+                POP(); // No Functions so this is just blank
                 return;
                 break;
         }

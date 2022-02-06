@@ -73,6 +73,8 @@ Token identifier_or_keyword(void) {
             if(check_keyword(1, 4, "hile")) return make_token(TOKEN_WHILE);
         case 'l':
             if(check_keyword(1, 3, "oop")) return make_token(TOKEN_LOOP);
+        case 'p':
+            if(check_keyword(1, 4, "rint")) return make_token(TOKEN_PRINT);
     }
     return make_token(TOKEN_IDENTIFIER);
 }

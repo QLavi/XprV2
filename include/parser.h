@@ -20,6 +20,8 @@ typedef enum {
 } Op_Type;
 
 typedef enum {
+    NODE_PRINT,
+    NODE_ELSE,
     NODE_IF,
     NODE_BINARY_OP,
     NODE_UNARY_OP,

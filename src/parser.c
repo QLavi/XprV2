@@ -232,6 +232,14 @@ AST_Node* identi(void) {
     return make_ast_node(NODE_LOAD, 0, id, NO_OP);
 }
 
+AST_Node* print_statement(void) {
+    AST_Node* node = make_ast_node(NODE_PRINT, 0, NULL, NO_OP);
+    consume(TOKEN_PRINT, "");
+    add_child_node(node, expression(PREC_NONE));
+    consume(TOKEN_SEMICOLON, "missing `;` after expression");
+    return node;
+}
+
 AST_Node* assign_statement(void) {
     char* id = parser.curr_token.chars;
     AST_Node* node = make_ast_node(NODE_STORE, 0, id, NO_OP);
@@ -251,15 +259,14 @@ AST_Node* block(void) {
 
         if(match_token(TOKEN_IDENTIFIER)) {
             AST_Node* node = assign_statement();
-            add_child_node(list, node);
+            add_child_node(list, assign_statement());
         }
-        else {
-            if(match_token(TOKEN_IF)) {
-                consume(TOKEN_IF, "");
-                AST_Node* node = if_statement();
-                add_child_node(list, node);
-            }
-        }       
+        else if(match_token(TOKEN_IF)) {
+            add_child_node(list, if_statement());
+        }
+        else if(match_token(TOKEN_PRINT)) {
+            add_child_node(list, print_statement());
+        }
     }
     return list;
 }
@@ -267,6 +274,7 @@ AST_Node* block(void) {
 int em_id = 0;
 AST_Node* if_statement(void) {
     AST_Node* parent = make_ast_node(NODE_IF, 0, NULL, em_id++);
+    consume(TOKEN_IF, "");
 
     consume(TOKEN_LEFT_PAREN, "Missing `(` after `if` token");
     add_child_node(parent, expression(PREC_NONE));
@@ -284,11 +292,13 @@ AST_Node* statement(void) {
 
     while(!match_token(TOKEN_EOF)) {
         if(match_token(TOKEN_IF)) {
-            consume(TOKEN_IF, "");
             add_child_node(parent, if_statement());
         }
         else if(match_token(TOKEN_IDENTIFIER)) {
             add_child_node(parent, assign_statement());
+        }
+        else if(match_token(TOKEN_PRINT)) {
+            add_child_node(parent, print_statement());
         }
     }
     return parent;

@@ -11,6 +11,7 @@ enum {
     BINARY_OP,
     UNARY_OP,
     POP_TOP,
+    PRINT_VALUE,
     RETURN_VALUE,
 };
 

@@ -3,7 +3,7 @@
 #include "generator.h"
 #include "vm.h"
 
-#define DEBUG_OPCODE_STREAM
+/* #define DEBUG_OPCODE_STREAM */
 
 char* op_to_str[] = {
     [ADD_OP] = "+",
@@ -90,6 +90,10 @@ void generate_opcodes_from_ast(AST_Node* node, uint8_t* stream) {
             stream[count++] = LOAD_CONST;
             stream[count++] = load_const(node->value);
             break;
+        case NODE_PRINT:
+            stream[count++] = PRINT_VALUE;
+            stream[count++]; // Note: nothing to add as argument to print
+            break;
         default:
             return;
     }
@@ -151,9 +155,7 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
     uint8_t* stream = ALLOC(uint8_t, 256);
     generate_opcodes_from_ast(node, stream);
     backpatch(node, stream);
-    stream[count++] = LOAD_NAME;
-    stream[count++] = 'x';
-    stream[count++] = RETURN_VALUE;
+    count--;
 
     *c = count -1;
 #ifdef DEBUG_OPCODE_STREAM
@@ -175,8 +177,7 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
                     jmp0= *ip++ << 8 | *ip++;
                     jmp0= offset + jmp0 + 3;
                     printf("\t%4i %-20s (to %i) \n", offset, "POP_JUMP_IF_FALSE", jmp0);
-                }
-                break;
+                } break;
             case BINARY_OP:
                 printf("\t%4i %-20s (%s)\n", offset, "BINARY_OP", op_to_str[*ip++]);
                 break;
@@ -196,8 +197,10 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
             case POP_TOP:
                 printf("\t%4i %-20s\n", offset, "POP_TOP");
                 break;
+            case PRINT_VALUE:
+                printf("\t%4i %-20s\n", offset, "PRINT_VALUE");
+                break;
             case RETURN_VALUE:
-                printf("\t%4i %-20s\n", offset, "RETURN_VALUE");
                 break;
         }
         offset = ip - stream;
