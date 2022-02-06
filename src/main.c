@@ -1,6 +1,8 @@
 #include "io_and_mem.h"
 #include "lexer.h"
 #include "parser.h"
+#include "generator.h"
+#include "vm.h"
 
 int main(int argc, char** argv) {
     if(argc != 2) {
@@ -8,9 +10,18 @@ int main(int argc, char** argv) {
         exit(1);
     }
     char* src = load_file(argv[1]);
-    AST_Node* node = statement_list();
-    free_ast(node);
+    init_vm();
 
+    init_parser(src);
+    AST_Node* node = statement();
+
+    int count;
+    uint8_t* stream = generate_opcodes(node, &count);
+    eval(stream, count);
+
+    free_ast(node);
+    free_vm();
+    FREE(uint8_t, stream);
     FREE(char, src);
     return 0;
 }
