@@ -210,6 +210,7 @@ AST_Node* unary(void) {
             break;
         default: return NULL;
     }
+    return parent;
 }
 
 AST_Node* group(void) {
@@ -254,7 +255,6 @@ AST_Node* block(void) {
     while(!match_token(TOKEN_RIGHT_BRACE)) {
 
         if(match_token(TOKEN_IDENTIFIER)) {
-            AST_Node* node = assign_statement();
             add_child_node(list, assign_statement());
         }
         else if(match_token(TOKEN_IF)) {
