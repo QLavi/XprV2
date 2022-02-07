@@ -1,5 +1,5 @@
 CC = gcc
-C_FLAGS = -g
+C_FLAGS = -g -Wall -Werror
 LNK_FLAGS =
 INCLUDE = -Iinclude
 LIB = 
