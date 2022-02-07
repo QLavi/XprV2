@@ -67,16 +67,21 @@ Token identifier_or_keyword(void) {
     while(isalpha(CURR_CHAR()) || isdigit(CURR_CHAR()) || CURR_CHAR() == '_') ADVANCE();
 
     switch(*lexer.start) {
-        case 'i':
+        case 'i': {
             if(check_keyword(1, 1, "f")) return make_token(TOKEN_IF);
-        case 'e':
+        } break;
+        case 'e': {
             if(check_keyword(1, 3, "lse")) return make_token(TOKEN_ELSE);
-        case 'w':
+        } break;
+        case 'w': {
             if(check_keyword(1, 4, "hile")) return make_token(TOKEN_WHILE);
-        case 'l':
+        } break;
+        case 'l': {
             if(check_keyword(1, 3, "oop")) return make_token(TOKEN_LOOP);
-        case 'p':
+        } break;
+        case 'p': {
             if(check_keyword(1, 4, "rint")) return make_token(TOKEN_PRINT);
+        } break;
     }
     return make_token(TOKEN_IDENTIFIER);
 }
