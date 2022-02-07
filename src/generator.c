@@ -158,6 +158,8 @@ void patch_jump(uint8_t* stream) {
                     return;
                 }
             } break;
+            case RETURN_VALUE:
+                return;
             default:
                 break;
         }
@@ -183,8 +185,9 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
     if(node == NULL) return NULL;
     uint8_t* stream = ALLOC(uint8_t, 256);
     generate_opcodes_from_ast(node, stream);
+    stream[count++] = RETURN_VALUE;
     backpatch(node, stream);
-    count--;
+    count -= 2;
 
     *c = count;
 #ifdef DEBUG_OPCODE_STREAM
