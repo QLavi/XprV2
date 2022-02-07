@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 
     int count;
     uint8_t* stream = generate_opcodes(node, &count);
-    eval(stream, count);
+    /* eval(stream, count); */
 
     free_ast(node);
     free_vm();

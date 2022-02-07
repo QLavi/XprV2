@@ -18,8 +18,6 @@ typedef struct {
 
 VM vm;
 
-#define PUSH(x) (*vm.stk_ptr++ = x)
-#define POP() (*--vm.stk_ptr)
 
 void init_vm(void) {
     vm.stack = ALLOC(Value, 256);
@@ -29,6 +27,9 @@ void init_vm(void) {
     vm.ip = NULL;
     init_table(&vm.symbols);
 }
+
+#define PUSH(x) (*vm.stk_ptr++ = x)
+#define POP() (*--vm.stk_ptr)
 
 void free_vm(void) {
     FREE(Value, vm.stack);
@@ -53,14 +54,16 @@ void eval(uint8_t* stream, int count) {
         switch(*vm.ip++) {
             case POP_JUMP_IF_FALSE:
                 if(POP() == false) {
-                    int jump_offset = *vm.ip++ << 8 | *vm.ip++;
+                    int jump_offset = vm.ip[0] << 8 | vm.ip[1];
+                    vm.ip += 2;
                     vm.ip += jump_offset;
                 }
                 else {
                     vm.ip += 2;
                 } break;
             case JUMP_BLOCK:
-                int jump_offset = *vm.ip++ << 8 | *vm.ip++;
+                int jump_offset = vm.ip[0] << 8 | vm.ip[1];
+                vm.ip += 2;
                 vm.ip += jump_offset;
             case BINARY_OP:
                 switch(*vm.ip++) {
@@ -129,11 +132,13 @@ void eval(uint8_t* stream, int count) {
                 switch(*vm.ip++) {
                     case NEGATE_OP:
                     {
-                        PUSH(-POP());
+                        Value value = -POP();
+                        PUSH(value);
                     } break;
                     case NOT_OP:
                     {
-                        PUSH(!POP());
+                        Value value = !POP();
+                        PUSH(value);
                     } break;
                 } break;
             case LOAD_NAME:
@@ -162,10 +167,10 @@ void eval(uint8_t* stream, int count) {
                 vm.ip++;
             } break;
             case POP_TOP:
-                POP();
+                (void)POP();
                 break;
             case RETURN_VALUE:
-                POP(); // No Functions so this is just blank
+                (void)POP(); // No Functions so this is just blank
                 return;
                 break;
         }

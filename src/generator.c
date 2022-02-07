@@ -103,7 +103,7 @@ void generate_opcodes_from_ast(AST_Node* node, uint8_t* stream) {
             break;
         case NODE_PRINT:
             stream[count++] = PRINT_VALUE;
-            stream[count++]; // Note: nothing to add as argument to print
+            (void)stream[count++]; // Note: nothing to add as argument to print
             break;
         default:
             return;
@@ -147,6 +147,7 @@ void patch_jump(uint8_t* stream) {
                     *ip++ = c & 0xFF;
                     return;
                 }
+                ip += 2;
             } break;
             case JUMP_BLOCK:
             {
@@ -157,11 +158,32 @@ void patch_jump(uint8_t* stream) {
                     *ip++ = c & 0xFF;
                     return;
                 }
+                ip += 2;
             } break;
+            case ZERO_I:
+                break;
+            case LOAD_NAME:
+                ip += 1;
+                break;
+            case STORE_NAME:
+                ip += 1;
+                break;
+            case LOAD_CONST:
+                ip += 1;
+                break;
+            case BINARY_OP:
+                ip += 1;
+                break;
+            case UNARY_OP:
+                ip += 1;
+                break;
+            case POP_TOP:
+                break;
+            case PRINT_VALUE:
+                ip += 1;
+                break;
             case RETURN_VALUE:
                 return;
-            default:
-                break;
         }
     }
 }
@@ -186,8 +208,8 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
     uint8_t* stream = ALLOC(uint8_t, 256);
     generate_opcodes_from_ast(node, stream);
     stream[count++] = RETURN_VALUE;
-    backpatch(node, stream);
     count -= 2;
+    backpatch(node, stream);
 
     *c = count;
 #ifdef DEBUG_OPCODE_STREAM
@@ -198,44 +220,54 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
         switch(*ip++) {
             case POP_JUMP_IF_FALSE:
             {
-                jmp0= *ip++ << 8 | *ip++;
+                jmp0= ip[0] << 8 | ip[1];
                 jmp0= offset + jmp0 + 3;
                 printf("\t%4i %-20s (to %i) \n", offset, "POP_JUMP_IF_FALSE", jmp0);
+                ip += 2;
             } break;
             case JUMP_BLOCK:
             {
-                jmp0= *ip++ << 8 | *ip++;
+                jmp0= ip[0] << 8 | ip[1];
                 jmp0= offset + jmp0 + 3;
                 printf("\t%4i %-20s (to %i) \n", offset, "JUMP_BLOCK", jmp0);
+                ip += 2;
             } break;
             case BINARY_OP:
+            {
                 printf("\t%4i %-20s (%s)\n", offset, "BINARY_OP", op_to_str[*ip++]);
-                break;
+            } break;
             case UNARY_OP:
+            {
                 printf("\t%4i %-20s (%s)\n", offset, "UNARY_OP", op_to_str[*ip++]);
-                break;
+            } break;
             case LOAD_NAME:
+            {
                 printf("\t%4i %-20s (%c)\n", offset, "LOAD_NAME", *ip++);
-                break;
+            } break;
             case STORE_NAME:
+            {
                 printf("\t%4i %-20s (%c)\n", offset, "STORE_NAME", *ip++);
-                break;
+            } break;
             case LOAD_CONST:
+            {
                 int index = *ip++;
                 printf("\t%4i %-20s (%i) '%g'\n", offset, "LOAD_CONST", index, get_const(index));
-                break;
+            } break;
             case POP_TOP:
+            {
                 printf("\t%4i %-20s\n", offset, "POP_TOP");
-                break;
+            } break;
             case PRINT_VALUE:
+            {
                 printf("\t%4i %-20s\n", offset, "PRINT_VALUE");
-                *ip++;
-                break;
+                ip += 1;
+            } break;
             case RETURN_VALUE:
                 break;
             case ZERO_I:
-                printf("\t%i %-20s\n", offset, "ZERO_I");
-                break;
+            {
+                printf("\t%4i %-20s\n", offset, "ZERO_I");
+            } break;
         }
         offset = ip - stream;
     }
