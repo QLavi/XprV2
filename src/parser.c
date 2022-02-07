@@ -42,7 +42,7 @@ AST_Node* make_ast_node(Node_Type type, Value value, char* chars, Op_Type op_typ
     else if(type == NODE_BINARY_OP || type == NODE_UNARY_OP) {
         node->op_type = op_type;
     }
-    else if(type == NODE_IF) {
+    else if(type == NODE_IF || type == NODE_ELSE) {
         node->jump_id = op_type;
     }
     else {
@@ -280,6 +280,14 @@ AST_Node* if_statement(void) {
     add_child_node(parent, block());
     consume(TOKEN_RIGHT_BRACE, "`}` is missing after if block");
 
+    if(match_token(TOKEN_ELSE)) {
+        consume(TOKEN_ELSE, "");
+        AST_Node* else_block = make_ast_node(NODE_ELSE, 0, NULL, em_id++);
+        consume(TOKEN_LEFT_BRACE, "`{` is mandatory after if statement");
+        add_child_node(else_block, block());
+        consume(TOKEN_RIGHT_BRACE, "`}` is missing after if block");
+        add_child_node(parent, else_block);
+    }
     return parent;
 }
 

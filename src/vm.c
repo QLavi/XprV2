@@ -58,8 +58,10 @@ void eval(uint8_t* stream, int count) {
                 }
                 else {
                     vm.ip += 2;
-                }
-                break;
+                } break;
+            case JUMP_BLOCK:
+                int jump_offset = *vm.ip++ << 8 | *vm.ip++;
+                vm.ip += jump_offset;
             case BINARY_OP:
                 switch(*vm.ip++) {
                     case ADD_OP:
