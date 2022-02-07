@@ -69,6 +69,8 @@ Token identifier_or_keyword(void) {
     switch(*lexer.start) {
         case 'i':
             if(check_keyword(1, 1, "f")) return make_token(TOKEN_IF);
+        case 'e':
+            if(check_keyword(1, 3, "lse")) return make_token(TOKEN_ELSE);
         case 'w':
             if(check_keyword(1, 4, "hile")) return make_token(TOKEN_WHILE);
         case 'l':
@@ -109,10 +111,10 @@ Token next_token(void) {
         case ')': return make_token(TOKEN_RIGHT_PAREN);
         case '{': return make_token(TOKEN_LEFT_BRACE);
         case '}': return make_token(TOKEN_RIGHT_BRACE);
-        case '+': return make_token(match('=') ? TOKEN_PLUS_EQUAL : TOKEN_PLUS);
-        case '-': return make_token(match('=') ? TOKEN_MINUS_EQUAL: TOKEN_MINUS);
-        case '*': return make_token(match('=') ? TOKEN_STAR_EQUAL : TOKEN_STAR);
-        case '/': return make_token(match('=') ? TOKEN_SLASH_EQUAL: TOKEN_SLASH);
+        case '+': return make_token(TOKEN_PLUS);
+        case '-': return make_token(TOKEN_MINUS);
+        case '*': return make_token(TOKEN_STAR);
+        case '/': return make_token(TOKEN_SLASH);
         case '<': return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>': return make_token(match('=') ? TOKEN_GREATER_EQUAL: TOKEN_GREATER);
         case '=': return make_token(match('=') ? TOKEN_EQUAL_EQUAL: TOKEN_EQUAL);
