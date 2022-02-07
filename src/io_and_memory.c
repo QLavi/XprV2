@@ -1,6 +1,6 @@
 #include "io_and_mem.h"
 
-void* x_alloc(void* old_ptr, size_t size, int line_no, char* filename) {
+void* x_alloc(void* old_ptr, size_t size) {
     if(old_ptr != NULL && size == 0) {
         free(old_ptr);
         return NULL;
@@ -14,6 +14,7 @@ void* x_alloc(void* old_ptr, size_t size, int line_no, char* filename) {
         }
         return new_ptr;
     }
+    return NULL;
 }
 
 char* load_file(char* filename) {
