@@ -91,6 +91,12 @@ void eval(uint8_t* stream, int count) {
                         Value b = POP();
                         PUSH(b / a);
                     } break;
+                    case MOD_OP:
+                    {
+                        Value a = POP();
+                        Value b = POP();
+                        PUSH((int)(b) % (int)(a));
+                    } break;
                     case LESS_OP:
                     {
                         Value a = POP();

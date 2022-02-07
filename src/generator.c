@@ -10,6 +10,7 @@ char* op_to_str[] = {
     [SUB_OP] = "-",
     [MUL_OP] = "*",
     [DIV_OP] = "/",
+    [MOD_OP] = "%",
     [LESS_OP] = "<",
     [LESS_EQUAL_OP] = "<=",
     [GREATER_OP] = ">",
@@ -67,6 +68,7 @@ void generate_opcodes_from_ast(AST_Node* node, uint8_t* stream) {
                 case SUB_OP:
                 case MUL_OP:
                 case DIV_OP:
+                case MOD_OP:
                 case LESS_OP:
                 case LESS_EQUAL_OP:
                 case GREATER_OP:

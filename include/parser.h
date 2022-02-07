@@ -9,6 +9,7 @@ typedef enum {
     SUB_OP,
     MUL_OP,
     DIV_OP,
+    MOD_OP,
     NEGATE_OP,
     NOT_OP,
     LESS_OP,

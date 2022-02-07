@@ -120,6 +120,7 @@ Token next_token(void) {
         case '-': return make_token(TOKEN_MINUS);
         case '*': return make_token(TOKEN_STAR);
         case '/': return make_token(TOKEN_SLASH);
+        case '%': return make_token(TOKEN_MOD);
         case '<': return make_token(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>': return make_token(match('=') ? TOKEN_GREATER_EQUAL: TOKEN_GREATER);
         case '=': return make_token(match('=') ? TOKEN_EQUAL_EQUAL: TOKEN_EQUAL);

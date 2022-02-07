@@ -107,6 +107,7 @@ Parse_Rule rules[] = {
     [TOKEN_MINUS]           = {unary, binary, PREC_TERM},
     [TOKEN_STAR]            = {NULL, binary, PREC_FACTOR},
     [TOKEN_SLASH]           = {NULL, binary, PREC_FACTOR},
+    [TOKEN_MOD]             = {NULL, binary, PREC_FACTOR},
     [TOKEN_LESS]            = {NULL, binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL]      = {NULL, binary, PREC_COMPARISON},
     [TOKEN_GREATER]         = {NULL, binary, PREC_COMPARISON},
@@ -159,6 +160,11 @@ AST_Node* binary(AST_Node* node) {
             break;
         case TOKEN_SLASH:
             parent->op_type = DIV_OP;
+            add_child_node(parent, node);
+            add_child_node(parent, expression(PREC_FACTOR));
+            break;
+        case TOKEN_MOD:
+            parent->op_type = MOD_OP;
             add_child_node(parent, node);
             add_child_node(parent, expression(PREC_FACTOR));
             break;
