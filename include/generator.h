@@ -6,6 +6,7 @@ enum {
     ZERO_I,
     POP_JUMP_IF_FALSE,
     JUMP_BLOCK,
+    LOOP_BLOCK,
     LOAD_NAME,
     STORE_NAME,
     LOAD_CONST,

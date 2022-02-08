@@ -42,7 +42,7 @@ AST_Node* make_ast_node(Node_Type type, Value value, char* chars, Op_Type op_typ
     else if(type == NODE_BINARY_OP || type == NODE_UNARY_OP) {
         node->op_type = op_type;
     }
-    else if(type == NODE_IF || type == NODE_ELSE) {
+    else if(type == NODE_IF || type == NODE_ELSE || type == NODE_WHILE || type == NODE_WHILE_BLOCK) {
         node->jump_id = op_type;
     }
     else {
@@ -255,6 +255,7 @@ AST_Node* assign_statement(void) {
 }
 
 AST_Node* if_statement(void);
+AST_Node* while_statement(void);
 
 AST_Node* block(void) {
     AST_Node* list = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
@@ -268,6 +269,9 @@ AST_Node* block(void) {
         }
         else if(match_token(TOKEN_PRINT)) {
             add_child_node(list, print_statement());
+        }
+        else if(match_token(TOKEN_WHILE)) {
+            add_child_node(list, while_statement());
         }
     }
     return list;
@@ -297,6 +301,21 @@ AST_Node* if_statement(void) {
     return parent;
 }
 
+AST_Node* while_statement(void) {
+    AST_Node* parent = make_ast_node(NODE_WHILE, 0, NULL, em_id++);
+    consume(TOKEN_WHILE, "");
+
+    consume(TOKEN_LEFT_PAREN, "Missing `(` after `while` token");
+    add_child_node(parent, expression(PREC_NONE));
+    consume(TOKEN_RIGHT_PAREN, "Missing `)` after condition expression");
+
+    consume(TOKEN_LEFT_BRACE, "`{` is mandatory after while statement");
+    add_child_node(parent, block());
+    consume(TOKEN_RIGHT_BRACE, "`}` is missing after while block");
+
+    return parent;
+}
+
 AST_Node* statement(void) {
     AST_Node* parent = make_ast_node(NODE_STATEMENT_LIST, 0, NULL, NO_OP);
 
@@ -309,6 +328,9 @@ AST_Node* statement(void) {
         }
         else if(match_token(TOKEN_PRINT)) {
             add_child_node(parent, print_statement());
+        }
+        else if(match_token(TOKEN_WHILE)) {
+            add_child_node(parent, while_statement());
         }
     }
     return parent;

@@ -21,6 +21,8 @@ typedef enum {
 } Op_Type;
 
 typedef enum {
+    NODE_WHILE,
+    NODE_WHILE_BLOCK,
     NODE_PRINT,
     NODE_ELSE,
     NODE_IF,

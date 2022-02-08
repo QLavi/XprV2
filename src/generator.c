@@ -3,7 +3,7 @@
 #include "generator.h"
 #include "vm.h"
 
-#define DEBUG_OPCODE_STREAM
+/* #define DEBUG_OPCODE_STREAM */
 
 char* op_to_str[] = {
     [ADD_OP] = "+",
@@ -47,12 +47,37 @@ void if_block_opcodes(AST_Node* node, uint8_t* stream) {
     }
 }
 
+void while_entry_opcode(AST_Node* node, uint8_t* stream) {
+    emitter_ids[em_count++] = node->jump_id;
+
+    int expr_count = count;
+    generate_opcodes_from_ast(node->child_nodes[0], stream);
+    expr_count = count - expr_count;
+
+    stream[count++] = POP_JUMP_IF_FALSE;
+    stream[count++] = node->jump_id;
+    stream[count++] = 0xCD;
+
+    int block_count = count;
+    generate_opcodes_from_ast(node->child_nodes[1], stream);
+    block_count = count - block_count;
+
+    int total_jump_offset = expr_count + block_count;
+
+    stream[count++] = LOOP_BLOCK;
+    stream[count++] = total_jump_offset << 8;
+    stream[count++] = total_jump_offset;
+}
+
 void generate_opcodes_from_ast(AST_Node* node, uint8_t* stream) {
     if(node == NULL) return;
 
     switch(node->type) {
         case NODE_IF:
             if_block_opcodes(node, stream);
+            return;
+        case NODE_WHILE:
+            while_entry_opcode(node, stream);
             return;
         default:
             break;
@@ -117,6 +142,10 @@ void find_jump_emitter(AST_Node* node) {
     if(node == NULL) return;
 
     switch(node->type) {
+        case NODE_WHILE:
+            if(emitter_ids[em_count] == node->jump_id) {
+                jmp_block = node->child_nodes[1];
+            } break;
         case NODE_IF:
             if(emitter_ids[em_count] == node->jump_id) {
                 jmp_block = node->child_nodes[1];
@@ -137,8 +166,7 @@ void patch_jump(uint8_t* stream) {
     uint8_t* ip = stream;
     for(;;) {
         switch(*ip++) {
-            case POP_JUMP_IF_FALSE:
-            {
+            case POP_JUMP_IF_FALSE: {
                 uint8_t id = *ip;
                 if(emitter_ids[em_count] == id) {
                     uint16_t c = count;
@@ -151,8 +179,7 @@ void patch_jump(uint8_t* stream) {
                 }
                 ip += 2;
             } break;
-            case JUMP_BLOCK:
-            {
+            case JUMP_BLOCK: {
                 uint8_t id = *ip;
                 if(emitter_ids[em_count] == id) {
                     uint16_t c = count;
@@ -195,9 +222,8 @@ void backpatch(AST_Node* node, uint8_t* stream) {
     uint8_t* block_stream = ALLOC(uint8_t, 256);
     for(;em_count > 0;) {
         find_jump_emitter(node);
-        AST_Node* block_node = jmp_block;
         count = 0;
-        generate_opcodes_from_ast(block_node, block_stream);
+        generate_opcodes_from_ast(jmp_block, block_stream);
         patch_jump(stream);
         em_count--;
     }
@@ -210,8 +236,8 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
     uint8_t* stream = ALLOC(uint8_t, 256);
     generate_opcodes_from_ast(node, stream);
     stream[count++] = RETURN_VALUE;
-    count -= 2;
     backpatch(node, stream);
+    count -= 2;
 
     *c = count;
 #ifdef DEBUG_OPCODE_STREAM
@@ -232,6 +258,13 @@ uint8_t* generate_opcodes(AST_Node* node, int* c) {
                 jmp0= ip[0] << 8 | ip[1];
                 jmp0= offset + jmp0 + 3;
                 printf("\t%4i %-20s (to %i) \n", offset, "JUMP_BLOCK", jmp0);
+                ip += 2;
+            } break;
+            case LOOP_BLOCK:
+            {
+                jmp0= ip[0] << 8 | ip[1];
+                jmp0 = offset - jmp0 - 3;
+                printf("\t%4i %-20s (to %i) \n", offset, "LOOP_BLOCK", jmp0);
                 ip += 2;
             } break;
             case BINARY_OP:

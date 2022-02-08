@@ -50,7 +50,7 @@ void eval(uint8_t* stream, int count) {
     vm.ip = stream;
 
     int offset = 0;
-    for(;offset <= count;) {
+    for(;offset < count;) {
         switch(*vm.ip++) {
             case POP_JUMP_IF_FALSE:
                 if(POP() == false) {
@@ -66,6 +66,12 @@ void eval(uint8_t* stream, int count) {
                 int jump_offset = vm.ip[0] << 8 | vm.ip[1];
                 vm.ip += 2;
                 vm.ip += jump_offset;
+            } break;
+            case LOOP_BLOCK:
+            {
+                int jump_offset = vm.ip[0] << 8 | vm.ip[1];
+                jump_offset = offset - jump_offset - 3;
+                vm.ip = stream + jump_offset;
             } break;
             case BINARY_OP:
                 switch(*vm.ip++) {
