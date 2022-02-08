@@ -1,4 +1,4 @@
-x = 50; # Pretend this User Input, will ya?
+x = 50; # Pretend this User Input
 
 s = 0; # True if divisible by 3
 t = 0; # True if divisible by 5
