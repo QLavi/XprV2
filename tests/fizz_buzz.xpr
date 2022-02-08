@@ -1,0 +1,16 @@
+x = 50; # Pretend this User Input, will ya?
+
+s = 0; # True if divisible by 3
+t = 0; # True if divisible by 5
+
+if(x % 3 == 0) {
+    s = 1;
+    print 47; # Fizz
+}
+if(x % 5 == 0) {
+    t = 1;
+    print 57; # Buzz
+}
+if(s + t == 2) {
+    print 47 + 57; # Fizz Buzz
+}
