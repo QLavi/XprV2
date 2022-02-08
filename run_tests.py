@@ -28,3 +28,5 @@ def run_test(test_file):
 print("Running Tests")
 print(f"[TEST] Expression Parsing and Evaluation")
 run_test("tests/expression.xpr")
+print(f"[TEST] Fizzbuzz to test conditional constructs")
+run_test("tests/fizz_buzz.xpr")

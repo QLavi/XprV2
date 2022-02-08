@@ -14,3 +14,5 @@ if(x % 5 == 0) {
 if(s + t == 2) {
     print 47 + 57; # Fizz Buzz
 }
+
+# Expect: 57.0
